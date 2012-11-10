@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<a key1="value1">
+	<b>
+		<item a="234">
+			Some value
+		</item>
+		<item a="52">
+			Some value2
+		</item>
+	</b>
+</a>
