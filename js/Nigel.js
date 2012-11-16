@@ -1,4 +1,4 @@
-(function(window,undefined){
+(function(window,document,undefined){
 	
 	function Nigel(){
 
@@ -81,6 +81,19 @@
 		isIE = ((navigator.userAgent.indexOf("MSIE")!==-1)?true:false);
 
 		/**
+		 * Checks whether the url is fusion table nature
+		 * @param  {String}  strURL     The URL of source file
+		 * @param  {Object}  objOptions Options passed through
+		 * @return {Boolean}            True or false baby
+		 */
+		function _isFusionTable(strURL, objOptions){
+			if(objOptions.fusionTable || strURL.indexOf('/fusiontables/')!=-1){
+				return true
+			}
+			return false;
+		}
+
+		/**
 		 * Load the file
 		 * @param  {String} strURL     Source file location
 		 * @param  {String} fnCallback Callback function for when finished loading
@@ -90,7 +103,7 @@
 			if(	strURL==="" ||
 				fnCallback===undefined ||
 				typeof fnCallback!=="function"){
-				console.log('No URL or callback')
+				alert('No URL or callback');
 				return;
 			}
 
@@ -100,29 +113,63 @@
 			req    = new httpRequest(),
 			result = null;
 
-			objOptions.type = objOptions.type || _predictType(strURL).type;
-			objOptions.raw  = objOptions.raw || false;
+			objOptions.type         = objOptions.type || _predictType(strURL).type;
+			objOptions.raw          = objOptions.raw || false;
+			objOptions.injectToPage = objOptions.injectToPage || false;
 
-			req.onreadystatechange = function(){
-				if(req.readyState==4 && req.status==200) {
-					if(objOptions.raw){
-						fnCallback( req.responseText );
-					} else {
-						//Parse
-						result = _parse( req.responseText, objOptions.type, objOptions );
-						//Callback
-						fnCallback(result);
+			//Check if we're dealing with a fusion table
+			if(objOptions.fusionTable = _isFusionTable(strURL, objOptions)){
+				//Remove any callback and make sure it's set to JSON
+				strURL = strURL	.replace(/(([&|\?]n?)alt=csv(&?))/gi, "$2alt=json$3")
+								.replace(/&callback(=[^&]*)?|callback(=[^&]*)?&?/gi, "");
+				//Make sure the type is JSON
+				objOptions.type = "JSON";
+			}
+
+			//Some times, injecting the file into the page is best. Only works with JSON
+			if(objOptions.injectToPage){
+
+				//Set the callback
+				this.loadCallback = fnCallback;
+
+				//Add the callback to the URL
+				strURL += "&callback=Nigel.loadCallback";
+
+				var 
+				tScript = document.createElement('script'),
+				scr     = document.getElementsByTagName('script')[0];
+				tScript.type = "text/javascript";
+				tScript.src = strURL;
+
+				scr.parentNode.insertBefore(tScript,scr);
+
+			} else {
+
+				req.onreadystatechange = function(){
+					if(req.readyState==4 && req.status==200) {
+						if(objOptions.raw){
+							fnCallback( req.responseText );
+						} else {
+							//Parse
+							result = _parse( req.responseText, objOptions.type, objOptions );
+							//Callback
+							fnCallback(result);
+						}
+					} else if(req.readyState==4 && req.status!=200){
+						fnCallback( {"error": {'text':'Request error','code':req.status}} );
 					}
-				} else if(req.readyState==4 && req.status!=200){
-					fnCallback( {"error": req.status} );
 				}
+				req.onerror = function(){
+					req.abort();
+					fnCallback( {"error": {'text':'Request error','code':req.status}} );
+				}
+				req.open("GET", strURL, false);
+				if(req.overrideMimeType){
+					req.overrideMimeType( objOptions.type );
+				}
+				req.send(null);
+
 			}
-			req.onerror = function(){
-				fnCallback( {"error": req.statusText} );
-			}
-			req.open("GET", strURL, false);
-			req.overrideMimeType( objOptions.type );
-			req.send(null);
 		}
 
 		/**
@@ -217,7 +264,7 @@
 			ext = strURL.split('.').pop().toLowerCase(),
 			ty  = "";
 			switch(ext) {
-				case 'json': case '.js':
+				case 'json': case 'js':
 					ty = "JSON";
 					break;
 				case 'xml':
@@ -238,6 +285,7 @@
 
 		return {
 			load: _load,
+			loadCallback: function(){},
 			parse: _parse
 		};
 
@@ -245,4 +293,4 @@
 
 	window['Nigel'] = Nigel();
 
-})(this);
+})(this,this.document);

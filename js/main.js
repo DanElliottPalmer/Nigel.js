@@ -1,8 +1,10 @@
 (function(window,undefined){
-	
-	Nigel.load('./data/csv.csv',function(d){
+
+	Nigel.load('./data/xml.xml',function(d){
 		//Smashing! It's loaded
-		console.log(d);
+		console.log('Loaded',d);
+	},{
+	
 	});
 
 })(this);

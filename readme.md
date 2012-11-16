@@ -40,8 +40,10 @@ The types consist of:
 	The `XML` is returned as an object with 4 keys: `attributes` (Object), `children` (Array), `nodeName` (String/Number) and `nodeValue` (String/Number).
 
 ###Options
-- `raw` - Used in `Nigel.load()`. If set to `true`, it will return the raw data, not parsed. Defaults to `false`.
-- `firstRowHeaders` - Used in `Nigel.load()` and `Nigel.parse()`. If the file being loaded is a TSV or CSV and is set to `true`, the first row will be treated as column headers returning an array of objects, rather than array of arrays.
+- `raw` - Boolean - Used in `Nigel.load()`. If set to `true`, it will return the raw data, not parsed. Defaults to `false`.
+- `firstRowHeaders` - Boolean - Used in `Nigel.load()` and `Nigel.parse()`. If the file being loaded is a TSV or CSV and is set to `true`, the first row will be treated as column headers returning an array of objects, rather than array of arrays. Defaults to `true`.
+- `injectToPage` - Boolean - Used if you want to load the JSON into the page as an alternative way of loading. Sometimes you might need to do this. Defaults to `false`.
+- `fusionTable` - Boolean - Stating whether the URL provided is a fusion table address. Defaults to `false`.
 
 ###FAQ
 
