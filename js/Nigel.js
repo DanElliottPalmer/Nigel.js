@@ -145,7 +145,26 @@
 
 			} else {
 
-				req.onreadystatechange = function(){
+				//Fix for firefox 3.5 with firebug
+				//http://www.nczonline.net/blog/2009/07/09/firefox-35firebug-xmlhttprequest-and-readystatechange-bug/ 
+				if(/firefox\/3.6/.test(navigator.userAgent.toLowerCase())){
+					req.onload = req.onerror = req.onabort = function(){
+						console.log("A");
+						_requestEventParser();
+					}
+				} else {
+					req.onreadystatechange = function(){
+						_requestEventParser();
+					}
+				}
+
+				
+				/*req.onerror = function(){
+					req.abort();
+					fnCallback( {"error": {'text':'Request error','code':req.status}} );
+				}*/
+
+				function _requestEventParser(){
 					if(req.readyState==4 && req.status==200) {
 						if(objOptions.raw){
 							fnCallback( req.responseText );
@@ -159,10 +178,7 @@
 						fnCallback( {"error": {'text':'Request error','code':req.status}} );
 					}
 				}
-				req.onerror = function(){
-					req.abort();
-					fnCallback( {"error": {'text':'Request error','code':req.status}} );
-				}
+
 				req.open("GET", strURL, false);
 				if(req.overrideMimeType){
 					req.overrideMimeType( objOptions.type );
@@ -291,6 +307,6 @@
 
 	}
 
-	window['Nigel'] = Nigel();
+	window['Nigel'] = new Nigel();
 
 })(this,this.document);
