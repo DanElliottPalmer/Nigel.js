@@ -1,0 +1,16 @@
+{
+  "name": "nigeljs",
+  "title": "Nigel.js",
+  "description": "Data loader for JSON, XML and DSV",
+  "author": {
+    "name": "Dan Palmer",
+    "url": "http://thisiscave.co.uk"
+  },
+  "version": "0.0.1",
+  "devDependencies": {
+    "grunt": "latest",
+    "grunt-contrib-uglify": "latest",
+    "grunt-contrib-watch": "~0.4.4",
+    "qunitjs": "~1.12.0"
+  }
+}
